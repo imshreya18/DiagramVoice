@@ -3,3 +3,4 @@ google-genai
 gTTS
 pillow
 python-dotenv
+pymupdf

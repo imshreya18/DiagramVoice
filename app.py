@@ -81,10 +81,29 @@ st.title("🔊 DiagramVoice")
 st.write("Upload a textbook graph or circuit and hear it explained.")
 
 lang = st.radio("Language", ["English", "Hindi"], horizontal=True)
-file = st.file_uploader("Upload a diagram", type=["png", "jpg", "jpeg"])
+# file = st.file_uploader("Upload a diagram", type=["png", "jpg", "jpeg"])
 
+# if file:
+#     img = Image.open(file)
+#     st.image(img, caption="Your diagram")
+
+file = st.file_uploader("Upload a diagram or PDF", type=["png", "jpg", "jpeg", "pdf"])
+
+img = None
 if file:
-    img = Image.open(file)
+    if file.name.lower().endswith(".pdf"):
+        import fitz  # PyMuPDF
+        pdf = fitz.open(stream=file.getvalue(), filetype="pdf")
+        page_no = 1
+        if len(pdf) > 1:
+            page_no = st.number_input(f"This PDF has {len(pdf)} pages. Which page has the diagram?",
+                                      min_value=1, max_value=len(pdf), value=1, step=1)
+        pix = pdf[int(page_no) - 1].get_pixmap(dpi=150)
+        img = Image.open(io.BytesIO(pix.tobytes("png")))
+    else:
+        img = Image.open(file)
+
+if img is not None:
     st.image(img, caption="Your diagram")
 
     if st.button("Describe this diagram"):
