@@ -4,10 +4,12 @@
 
 > Built for HackNova 2026 · Problem Statement: **Inclusive Technology**
 
-🔗 **Live demo:** `PASTE_STREAMLIT_LINK_HERE`
+🔗 **Live demo:** `https://diagramvoice.streamlit.app/`
 🎥 **Demo video:** `PASTE_YOUTUBE_LINK_HERE`
 
-![DiagramVoice screenshot](screenshots/main.png)
+![Listen](screenshots/main.png)
+![Tactile export](screenshots/tactile.png)
+![Voice Q&A](screenshots/ask.png)
 <!-- Add 1-2 screenshots to a /screenshots folder: the description + audio, and voice Q&A -->
 
 ---
