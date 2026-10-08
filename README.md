@@ -9,7 +9,7 @@
 
 ![main](screenshots/main.png)
 ![Tactile export](screenshots/tactile.png)
-![Voice Q&A](screenshots/ask.png)
+![Voice Q&A](screenshots/quiz.png)
 ![braille section](screenshots/braille.png)
 ![multi-indian language](screenshots/multi_lang.png)
 <!-- Add 1-2 screenshots to a /screenshots folder: the description + audio, and voice Q&A -->
