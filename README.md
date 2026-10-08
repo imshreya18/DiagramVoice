@@ -4,7 +4,7 @@
 
 > Built for HackNova 2026 · Problem Statement: **Inclusive Technology**
 
-🔗 **Live demo:** `(https://diagramvoice.streamlit.app/)`
+🔗 **Live demo:** `https://diagramvoice.streamlit.app/`
 🎥 **Demo video:** `PASTE_YOUTUBE_LINK_HERE`
 
 ![DiagramVoice screenshot](screenshots/main.png)
