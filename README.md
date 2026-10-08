@@ -42,10 +42,12 @@ DiagramVoice turns a photo or PDF page of a diagram into a **clear spoken explan
 | Uncertainty flagging (no invented numbers) | ✅ |
 | Automatic model fallback and retry | ✅ |
 | Tactile-ready export (thick-line SVG/PDF) |  ✅ |
-| Geometry, biology, physics diagrams | 🔜 |
+| Geometry, biology, physics diagrams | ✅ |
 | Quiz generation |  ✅ |
-| Braille-ready output | 🔜 |
-| More Indian languages | 🔜 |
+| Braille-ready output | ✅ |
+| More Indian languages | ✅ |
+| Braille in Indian languages |🔜|
+| Testing with blind and low-vision students | 🔜 |
 
 ## How it works
 
@@ -104,6 +106,8 @@ Raw model outputs are in the [`results/`](results/) folder.
 - Pages with a lot of text plus a diagram may be described as a whole. Choose a page where the diagram is the main content, or crop first.
 - Each question is answered independently (no conversation memory yet).
 - Not yet tested with blind or low-vision users. This is our first next step.
+- Tactile drawings only exist for graphs and bar charts.
+- Braille is English Grade 1 only and hasn't been checked by a certified transcriber.
 
 ## Related tools and how we differ
 
@@ -163,17 +167,13 @@ diagramvoice/
 
 ## Future scope
 
-- Tactile-ready export (thick-line redraw as SVG/PDF for swell paper or embossing)
-- Geometry, biology, and physics figure support
-- Quiz generation from a diagram
-- Braille-ready output
 - Crop tool and multi-diagram pages
-- More Indian languages and offline mode
+- offline mode
 - Testing and co-design with blind and low-vision students and teachers
 
 ## Author
 
-Solo project by **YOUR NAME** (individual participation).
+Solo project by **SHREYA CHAUHAN** 
 
 ## Credits
 
