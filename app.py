@@ -209,19 +209,36 @@ st.set_page_config(page_title="DiagramVoice", page_icon="🔊", layout="wide")
 
 st.markdown("""
 <style>
-html, body, [class*="css"] { font-size: 18px; }
-#MainMenu, footer { visibility: hidden; }
-.block-container { padding-top: 1.5rem; max-width: 1250px; }
-.hero { background: linear-gradient(135deg, #1e3a8a, #2563eb); padding: 1.8rem 2rem;
-        border-radius: 20px; margin-bottom: 1.2rem; }
-.hero-title { color: #ffffff; font-size: 2.6rem; font-weight: 800; line-height: 1.1; }
-.hero-sub { color: #e0e7ff; font-size: 1.25rem; margin-top: .5rem; }
-.badges span { display: inline-block; background: rgba(255,255,255,.18); color: #fff;
-        padding: .3rem .8rem; border-radius: 999px; margin: .8rem .4rem 0 0; font-size: .95rem; }
-.step { background: #eef2ff; border-radius: 16px; padding: 1.1rem 1.2rem; color: #0f172a; }
-.step b { font-size: 1.15rem; }
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Poppins:wght@600;700;800&family=Noto+Sans+Devanagari:wght@400;700&display=swap');
+
+html, body, .stApp, .stMarkdown, p, li, label, input, textarea, button {
+    font-family: 'Atkinson Hyperlegible', 'Noto Sans Devanagari', sans-serif;
+}
+html, body { font-size: 18px; }
+h1, h2, h3, h4, .hero-title {
+    font-family: 'Poppins', 'Noto Sans Devanagari', sans-serif !important;
+    font-weight: 700; color: #1e1b4b;
+}
+.stApp { background: linear-gradient(180deg, #eef2ff 0%, #ffffff 380px); }
+footer { visibility: hidden; }
+.block-container { padding-top: 4.5rem; max-width: 1250px; }
+
+.hero { background: linear-gradient(120deg, #312e81 0%, #2563eb 55%, #06b6d4 100%);
+        padding: 2rem 2.2rem; border-radius: 24px; margin-bottom: 1.4rem;
+        box-shadow: 0 14px 34px rgba(37, 99, 235, .28); }
+.hero-title { color: #ffffff !important; font-size: 2.7rem; font-weight: 800; line-height: 1.15; }
+.hero-sub { color: #e0f2fe; font-size: 1.3rem; margin-top: .5rem; }
+.badges span { display: inline-block; background: rgba(255,255,255,.2); color: #fff;
+        padding: .35rem .9rem; border-radius: 999px; margin: .9rem .45rem 0 0; font-size: .95rem; }
+
+.step { background: #eef2ff; border-left: 6px solid #2563eb; border-radius: 14px;
+        padding: 1rem 1.2rem; color: #0f172a; }
+.step b { font-family: 'Poppins', sans-serif; font-size: 1.1rem; color: #1e1b4b; }
+
 .stButton > button, .stDownloadButton > button {
-        font-size: 1.1rem; font-weight: 700; padding: .7rem 1.4rem; border-radius: 12px; }
+        font-size: 1.1rem; font-weight: 700; padding: .7rem 1.4rem; border-radius: 14px; }
+.stButton > button[kind="primary"], button[data-testid="stBaseButton-primary"] {
+        background: linear-gradient(120deg, #2563eb, #06b6d4); border: none; color: #fff; }
 button:focus-visible, input:focus-visible, [role="radio"]:focus-visible {
         outline: 4px solid #f59e0b !important; outline-offset: 2px; }
 </style>
@@ -236,7 +253,7 @@ button:focus-visible, input:focus-visible, [role="radio"]:focus-visible {
 left, right = st.columns([1, 1.35], gap="large")
 
 # ======================= LEFT: upload and settings =======================
-with left:
+with left, st.container(border=True):
     st.subheader("1. Choose your diagram")
     lang = st.radio("Language", ["English", "Hindi"], horizontal=True)
     vc1, vc2 = st.columns(2)
@@ -244,6 +261,14 @@ with left:
     vc2.radio("Speaking speed", ["Normal", "Slow"], key="speed", horizontal=True)
     file = st.file_uploader("Upload a photo, image, or PDF of the diagram",
                             type=["png", "jpg", "jpeg", "pdf"])
+
+    sig = (file.name, file.size) if file else None
+    if st.session_state.get("file_sig") != sig:
+        for k in list(st.session_state.keys()):
+            if k in ("data", "text", "lang", "tactile", "qa_cache", "quiz", "quiz_history",
+                     "voice_id", "voice_q") or str(k).startswith("quiz_"):
+                st.session_state.pop(k, None)
+        st.session_state["file_sig"] = sig
 
     img = None
     if file:
@@ -284,7 +309,7 @@ Only mention uncertain items if the uncertain list is not empty; say "approximat
                 st.error(f"Something went wrong: {e}")
 
 # ======================= RIGHT: results =======================
-with right:
+with right, st.container(border=True):
     if "text" not in st.session_state:
         st.subheader("How it works")
         st.markdown("""
@@ -424,6 +449,7 @@ Question: {question}"""])
 st.divider()
 st.caption("AI can make mistakes. Please check important answers with your teacher. "
            "DiagramVoice · HackNova 2026 · Inclusive Technology")
+
 
 # import os, json, io, re, random
 # import streamlit as st
@@ -632,111 +658,149 @@ st.caption("AI can make mistakes. Please check important answers with your teach
 #     return good
 
 
-# st.set_page_config(page_title="DiagramVoice", page_icon="🔊")
-# st.title("🔊 DiagramVoice")
-# st.write("Upload a textbook graph or circuit and hear it explained.")
+# st.set_page_config(page_title="DiagramVoice", page_icon="🔊", layout="wide")
 
-# lang = st.radio("Language", ["English", "Hindi"], horizontal=True)
-# vc1, vc2 = st.columns(2)
-# vc1.selectbox("Voice accent (English only)", list(ACCENTS), key="accent")
-# vc2.radio("Speaking speed", ["Normal", "Slow"], key="speed", horizontal=True)
-# file = st.file_uploader("Upload a diagram or PDF", type=["png", "jpg", "jpeg", "pdf"])
+# st.markdown("""
+# <style>
+# html, body, [class*="css"] { font-size: 18px; }
+# #MainMenu, footer { visibility: hidden; }
+# .block-container { padding-top: 1.5rem; max-width: 1250px; }
+# .hero { background: linear-gradient(135deg, #1e3a8a, #2563eb); padding: 1.8rem 2rem;
+#         border-radius: 20px; margin-bottom: 1.2rem; }
+# .hero-title { color: #ffffff; font-size: 2.6rem; font-weight: 800; line-height: 1.1; }
+# .hero-sub { color: #e0e7ff; font-size: 1.25rem; margin-top: .5rem; }
+# .badges span { display: inline-block; background: rgba(255,255,255,.18); color: #fff;
+#         padding: .3rem .8rem; border-radius: 999px; margin: .8rem .4rem 0 0; font-size: .95rem; }
+# .step { background: #eef2ff; border-radius: 16px; padding: 1.1rem 1.2rem; color: #0f172a; }
+# .step b { font-size: 1.15rem; }
+# .stButton > button, .stDownloadButton > button {
+#         font-size: 1.1rem; font-weight: 700; padding: .7rem 1.4rem; border-radius: 12px; }
+# button:focus-visible, input:focus-visible, [role="radio"]:focus-visible {
+#         outline: 4px solid #f59e0b !important; outline-offset: 2px; }
+# </style>
+# <div class="hero">
+#   <div class="hero-title">🔊 DiagramVoice</div>
+#   <div class="hero-sub">Hear any textbook graph or circuit. Ask your doubts by voice, in Hindi or English.</div>
+#   <div class="badges"><span>Hindi + English</span><span>Voice in, voice out</span>
+#   <span>Never invents numbers</span><span>Tactile-ready export</span><span>Free to use</span></div>
+# </div>
+# """, unsafe_allow_html=True)
 
-# img = None
-# if file:
-#     if file.name.lower().endswith(".pdf"):
-#         import fitz  # PyMuPDF
-#         pdf = fitz.open(stream=file.getvalue(), filetype="pdf")
-#         page_no = 1
-#         if len(pdf) > 1:
-#             page_no = st.number_input(f"This PDF has {len(pdf)} pages. Which page has the diagram?",
-#                                       min_value=1, max_value=len(pdf), value=1, step=1)
-#         pix = pdf[int(page_no) - 1].get_pixmap(dpi=150)
-#         img = Image.open(io.BytesIO(pix.tobytes("png")))
-#     else:
-#         img = Image.open(file)
+# left, right = st.columns([1, 1.35], gap="large")
 
-# if img is not None:
-#     st.image(img, caption="Your diagram")
+# # ======================= LEFT: upload and settings =======================
+# with left:
+#     st.subheader("1. Choose your diagram")
+#     lang = st.radio("Language", ["English", "Hindi"], horizontal=True)
+#     vc1, vc2 = st.columns(2)
+#     vc1.selectbox("Voice accent (English only)", list(ACCENTS), key="accent")
+#     vc2.radio("Speaking speed", ["Normal", "Slow"], key="speed", horizontal=True)
+#     file = st.file_uploader("Upload a photo, image, or PDF of the diagram",
+#                             type=["png", "jpg", "jpeg", "pdf"])
 
-#     if st.button("Describe this diagram"):
-#         try:
-#             with st.spinner("Reading the diagram..."):
-#                 extra = f"""
+#     img = None
+#     if file:
+#         if file.name.lower().endswith(".pdf"):
+#             import fitz  # PyMuPDF
+#             pdf = fitz.open(stream=file.getvalue(), filetype="pdf")
+#             page_no = 1
+#             if len(pdf) > 1:
+#                 page_no = st.number_input(
+#                     f"This PDF has {len(pdf)} pages. Which page has the diagram?",
+#                     min_value=1, max_value=len(pdf), value=1, step=1)
+#             pix = pdf[int(page_no) - 1].get_pixmap(dpi=150)
+#             img = Image.open(io.BytesIO(pix.tobytes("png")))
+#         else:
+#             img = Image.open(file)
+
+#     if img is not None:
+#         st.image(img, caption="Your diagram")
+#         if st.button("🔊 Describe this diagram", type="primary", use_container_width=True):
+#             try:
+#                 with st.spinner("Reading the diagram..."):
+#                     extra = f"""
 # Also add a key "spoken_description": a spoken description in {lang} (Devanagari if Hindi),
 # for a blind student, under 120 words, plain sentences, no markdown, in this order:
 # kind of diagram, overall shape, key labelled parts, key values, what it means.
 # Only mention uncertain items if the uncertain list is not empty; say "approximately" for estimated values."""
-#                 data = parse_json(call_llm([shrink(img), EXTRACT_PROMPT + extra], as_json=True))
-#                 text = data.get("spoken_description") or make_description(data, lang)
-#                 tactile = make_tactile(data)
-#             st.session_state.update(data=data, text=text, lang=lang,
-#                                     tactile=tactile)
-#             st.session_state.pop("qa_cache", None)
-#             st.session_state.pop("quiz", None)
-#             st.session_state.pop("quiz_audio", None)
-#             st.session_state.pop("quiz_history", None)
-#             for k in [k for k in st.session_state if str(k).startswith("quiz_")
-#                       and k != "quiz_history"]:
-#                 st.session_state.pop(k, None)
-#         except Exception as e:
-#             st.error(f"Something went wrong: {e}")
+#                     data = parse_json(call_llm([shrink(img), EXTRACT_PROMPT + extra], as_json=True))
+#                     text = data.get("spoken_description") or make_description(data, lang)
+#                     tactile = make_tactile(data)
+#                 st.session_state.update(data=data, text=text, lang=lang, tactile=tactile)
+#                 st.session_state.pop("qa_cache", None)
+#                 st.session_state.pop("quiz", None)
+#                 st.session_state.pop("quiz_history", None)
+#                 for k in [k for k in st.session_state if str(k).startswith("quiz_")
+#                           and k != "quiz_history"]:
+#                     st.session_state.pop(k, None)
+#             except Exception as e:
+#                 st.error(f"Something went wrong: {e}")
 
-# if "text" in st.session_state:
-#     st.subheader("Description")
-#     st.write(st.session_state["text"])
-#     st.audio(speak(st.session_state["text"], st.session_state["lang"]), format="audio/mp3")
-
-#     if st.session_state["data"].get("uncertain"):
-#         st.warning("Not sure about: " +
-#                    "; ".join(map(str, st.session_state["data"]["uncertain"])))
-
-#     st.subheader("Key facts")
-#     for f in st.session_state["data"].get("key_features", []):
-#         st.write("• " + str(f))
-
-#     # ----- Tactile export -----
-#     st.subheader("Tactile-ready export")
-#     tac = st.session_state.get("tactile")
-#     if tac:
-#         png, svg, pdf_bytes = tac
-#         st.image(png, caption="Simplified thick-line version for printing on swell paper "
-#                               "or for a school to emboss")
-#         c1, c2 = st.columns(2)
-#         c1.download_button("⬇ Download SVG", svg, file_name="tactile_diagram.svg",
-#                            mime="image/svg+xml")
-#         c2.download_button("⬇ Download PDF", pdf_bytes, file_name="tactile_diagram.pdf",
-#                            mime="application/pdf")
-#         st.caption("This is a simplified redraw from the extracted data, ready for tactile "
-#                    "printing. It is not a tactile device.")
+# # ======================= RIGHT: results =======================
+# with right:
+#     if "text" not in st.session_state:
+#         st.subheader("How it works")
+#         st.markdown("""
+# <div class="step"><b>1. Upload</b><br>A photo, image, or PDF page of a graph, bar chart, or circuit.</div><br>
+# <div class="step"><b>2. Listen</b><br>Get a clear spoken description in the same order every time.</div><br>
+# <div class="step"><b>3. Ask and practise</b><br>Ask doubts by voice, download a tactile-ready version, and take a quiz.</div>
+# """, unsafe_allow_html=True)
 #     else:
-#         st.info("A tactile version is available for graphs and bar charts. "
-#                 "It is not available for this diagram type yet.")
+#         st.subheader("2. Your results")
+#         view = st.radio("Section",
+#                         ["🔊 Listen", "✋ Tactile", "🎤 Ask", "📝 Quiz", "🔍 Under the hood"],
+#                         horizontal=True, key="view", label_visibility="collapsed")
+#         slang = st.session_state["lang"]
 
-#     # ----- Q&A -----
-#     st.subheader("Ask a question")
-#     voice = st.audio_input("🎤 Ask by voice")
-#     typed = st.text_input("Or type your question")
+#         if view == "🔊 Listen":
+#             st.write(st.session_state["text"])
+#             st.audio(speak(st.session_state["text"], slang), format="audio/mp3")
+#             if st.session_state["data"].get("uncertain"):
+#                 st.warning("Not sure about: " +
+#                            "; ".join(map(str, st.session_state["data"]["uncertain"])))
+#             st.markdown("**Key facts**")
+#             for f in st.session_state["data"].get("key_features", []):
+#                 st.write("• " + str(f))
 
-#     question = typed
-#     try:
-#         if voice is not None:
-#             audio_bytes = voice.getvalue()
-#             vid = hash(audio_bytes)
-#             if st.session_state.get("voice_id") != vid:
-#                 with st.spinner("Listening..."):
-#                     st.session_state["voice_q"] = transcribe(audio_bytes, st.session_state["lang"])
-#                 st.session_state["voice_id"] = vid
-#             if not typed:
-#                 question = st.session_state["voice_q"]
+#         elif view == "✋ Tactile":
+#             tac = st.session_state.get("tactile")
+#             if tac:
+#                 png, svg, pdf_bytes = tac
+#                 st.image(png, caption="Simplified thick-line version for swell paper "
+#                                       "or for a school to emboss")
+#                 c1, c2 = st.columns(2)
+#                 c1.download_button("⬇ Download SVG", svg, file_name="tactile_diagram.svg",
+#                                    mime="image/svg+xml", use_container_width=True)
+#                 c2.download_button("⬇ Download PDF", pdf_bytes, file_name="tactile_diagram.pdf",
+#                                    mime="application/pdf", use_container_width=True)
+#                 st.caption("A simplified redraw from the extracted data, ready for tactile "
+#                            "printing. It is not a tactile device.")
+#             else:
+#                 st.info("A tactile version is available for graphs and bar charts. "
+#                         "It is not available for this diagram type yet.")
 
-#         if question:
-#             cache = st.session_state.setdefault("qa_cache", {})
-#             key = (question, st.session_state["lang"])
-#             if key not in cache:
-#                 with st.spinner("Thinking..."):
-#                     ans = call_llm([f"""You are a patient school tutor helping a blind student.
-# Answer in {st.session_state['lang']}. If the language is Hindi, write in Devanagari script.
+#         elif view == "🎤 Ask":
+#             voice = st.audio_input("🎤 Ask by voice")
+#             typed = st.text_input("Or type your question")
+#             question = typed
+#             try:
+#                 if voice is not None:
+#                     audio_bytes = voice.getvalue()
+#                     vid = hash(audio_bytes)
+#                     if st.session_state.get("voice_id") != vid:
+#                         with st.spinner("Listening..."):
+#                             st.session_state["voice_q"] = transcribe(audio_bytes, slang)
+#                         st.session_state["voice_id"] = vid
+#                     if not typed:
+#                         question = st.session_state["voice_q"]
+
+#                 if question:
+#                     cache = st.session_state.setdefault("qa_cache", {})
+#                     key = (question, slang)
+#                     if key not in cache:
+#                         with st.spinner("Thinking..."):
+#                             ans = call_llm([f"""You are a patient school tutor helping a blind student.
+# Answer in {slang}. If the language is Hindi, write in Devanagari script.
 
 # The student is looking at this diagram (extracted data):
 # {json.dumps(st.session_state['data'])}
@@ -755,59 +819,62 @@ st.caption("AI can make mistakes. Please check important answers with your teach
 #    Keep it under 100 words, because this will be read aloud.
 
 # Question: {question}"""])
-#                     cache[key] = (ans, None)
-#             ans, _ = cache[key]
-#             st.write(f"**Question:** {question}")
-#             st.write(f"**Answer:** {ans}")
-#             st.audio(speak(ans, st.session_state["lang"]), format="audio/mp3")
-#     except Exception as e:
-#         st.error(f"Something went wrong: {e}")
+#                             cache[key] = (ans, None)
+#                     ans, _ = cache[key]
+#                     st.write(f"**Question:** {question}")
+#                     st.write(f"**Answer:** {ans}")
+#                     st.audio(speak(ans, slang), format="audio/mp3")
+#             except Exception as e:
+#                 st.error(f"Something went wrong: {e}")
 
-#     # ----- Quiz -----
-#     st.subheader("Practice quiz")
-#     if st.button("Create a quiz on this diagram"):
-#         try:
-#             with st.spinner("Writing questions..."):
-#                 history = st.session_state.get("quiz_history", [])
-#                 quiz = make_quiz(st.session_state["data"], st.session_state["lang"],
-#                                  avoid=history)
-#                 st.session_state["quiz_history"] = history + [q["question"] for q in quiz]
-#             for k in [k for k in st.session_state if str(k).startswith("quiz_")
-#                       and k not in ("quiz_history",)]:
-#                 st.session_state.pop(k, None)
-#             st.session_state["quiz"] = quiz
-#             st.session_state.pop("quiz_audio", None)
-#             if not quiz:
-#                 st.warning("Could not make a quiz this time. Please try again.")
-#         except Exception as e:
-#             st.error(f"Something went wrong: {e}")
+#         elif view == "📝 Quiz":
+#             if st.button("Create a quiz on this diagram", type="primary"):
+#                 try:
+#                     with st.spinner("Writing questions..."):
+#                         history = st.session_state.get("quiz_history", [])
+#                         quiz = make_quiz(st.session_state["data"], slang, avoid=history)
+#                         st.session_state["quiz_history"] = history + [q["question"] for q in quiz]
+#                     for k in [k for k in st.session_state if str(k).startswith("quiz_")
+#                               and k not in ("quiz_history",)]:
+#                         st.session_state.pop(k, None)
+#                     st.session_state["quiz"] = quiz
+#                     if not quiz:
+#                         st.warning("Could not make a quiz this time. Please try again.")
+#                 except Exception as e:
+#                     st.error(f"Something went wrong: {e}")
 
-#     quiz = st.session_state.get("quiz")
-#     if quiz:
-#         if st.checkbox("🔊 Read the quiz aloud"):
-#             spoken = " ".join(
-#                 f"Question {i + 1}. {q['question']}. Options: " +
-#                 ". ".join(f"{'ABCD'[j]}, {o}" for j, o in enumerate(q["options"]))
-#                 for i, q in enumerate(quiz))
-#             st.audio(speak(spoken, st.session_state["lang"]), format="audio/mp3")
+#             quiz = st.session_state.get("quiz")
+#             if quiz:
+#                 if st.checkbox("🔊 Read the quiz aloud"):
+#                     spoken = " ".join(
+#                         f"Question {i + 1}. {q['question']}. Options: " +
+#                         ". ".join(f"{'ABCD'[j]}, {o}" for j, o in enumerate(q["options"]))
+#                         for i, q in enumerate(quiz))
+#                     st.audio(speak(spoken, slang), format="audio/mp3")
 
-#         for i, q in enumerate(quiz):
-#             st.radio(f"Question {i + 1}. {q['question']}", q["options"],
-#                      index=None, key=f"quiz_{i}")
+#                 for i, q in enumerate(quiz):
+#                     st.radio(f"Question {i + 1}. {q['question']}", q["options"],
+#                              index=None, key=f"quiz_{i}")
 
-#         if st.button("Check my answers"):
-#             score = 0
-#             for i, q in enumerate(quiz):
-#                 chosen = st.session_state.get(f"quiz_{i}")
-#                 correct = q["options"][q["answer_index"]]
-#                 if chosen == correct:
-#                     score += 1
-#                     st.success(f"Question {i + 1}: correct. {q.get('explanation', '')}")
-#                 else:
-#                     st.error(f"Question {i + 1}: the correct answer is {correct}. "
-#                              f"{q.get('explanation', '')}")
-#             st.subheader(f"Your score: {score} out of {len(quiz)}")
+#                 if st.button("Check my answers"):
+#                     score = 0
+#                     for i, q in enumerate(quiz):
+#                         chosen = st.session_state.get(f"quiz_{i}")
+#                         correct = q["options"][q["answer_index"]]
+#                         if chosen == correct:
+#                             score += 1
+#                             st.success(f"Question {i + 1}: correct. {q.get('explanation', '')}")
+#                         else:
+#                             st.error(f"Question {i + 1}: the correct answer is {correct}. "
+#                                      f"{q.get('explanation', '')}")
+#                     st.subheader(f"Your score: {score} out of {len(quiz)}")
 
-#     with st.expander("For teachers and developers: what the AI read from the diagram"):
-#         st.json(st.session_state["data"])
+#         else:
+#             st.caption("The AI first extracts structured data from the diagram, then every "
+#                        "explanation is written from this data. This is why it does not invent numbers.")
+#             st.json(st.session_state["data"])
+
+# st.divider()
+# st.caption("AI can make mistakes. Please check important answers with your teacher. "
+#            "DiagramVoice · HackNova 2026 · Inclusive Technology")
 
