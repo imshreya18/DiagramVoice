@@ -7,11 +7,15 @@
 🔗 **Live demo:** `https://diagramvoice.streamlit.app/`
 🎥 **Demo video:** `PASTE_YOUTUBE_LINK_HERE`
 
-![main](screenshots/main.png)
-![Tactile export](screenshots/tactile.png)
-![Voice Q&A](screenshots/ask.png)
-![braille section](screenshots/braille.png)
-![multi-indian language](screenshots/multi_lang.png)
+![Main Interface](screenshots/main.png)
+
+![Tactile Export](screenshots/tactile.png)
+
+![Quiz](screenshots/quiz.png)
+
+![Braille Section](screenshots/braille.png)
+
+![Multi-Indian Language Support](screenshots/multi_language.png)
 <!-- Add 1-2 screenshots to a /screenshots folder: the description + audio, and voice Q&A -->
 
 
