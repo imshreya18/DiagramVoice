@@ -14,3 +14,12 @@ Honest about uncertainty. It flags unreadable values and says "approximately," a
 Voice in, voice out, in Hindi and English, with a tutor-style answer to concept doubts.
 Free and web-based, so no app install, no special hardware, and it works on a phone.
 Why judges might pick it
+
+
+[theme]
+base = "light"
+primaryColor = "#1d4ed8"
+backgroundColor = "#ffffff" 
+secondaryBackgroundColor = "#eef2ff"
+textColor = "#0f172a"
+font = "sans serif"

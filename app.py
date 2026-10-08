@@ -210,39 +210,71 @@ st.set_page_config(page_title="DiagramVoice", page_icon="🔊", layout="wide")
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Poppins:wght@600;700;800&family=Noto+Sans+Devanagari:wght@400;700&display=swap');
-
+ 
 html, body, .stApp, .stMarkdown, p, li, label, input, textarea, button {
-    font-family: 'Atkinson Hyperlegible', 'Noto Sans Devanagari', sans-serif;
+    font-family: 'pop', 'Noto Sans Devanagari', pop;
 }
-html, body { font-size: 18px; }
+html, body { font-size: 20px; }
 h1, h2, h3, h4, .hero-title {
     font-family: 'Poppins', 'Noto Sans Devanagari', sans-serif !important;
-    font-weight: 700; color: #1e1b4b;
+    font-weight: 700;
 }
-.stApp { background: linear-gradient(180deg, #eef2ff 0%, #ffffff 380px); }
 footer { visibility: hidden; }
 .block-container { padding-top: 4.5rem; max-width: 1250px; }
 
-.hero { background: linear-gradient(120deg, #312e81 0%, #2563eb 55%, #06b6d4 100%);
-        padding: 2rem 2.2rem; border-radius: 24px; margin-bottom: 1.4rem;
-        box-shadow: 0 14px 34px rgba(37, 99, 235, .28); }
-.hero-title { color: #ffffff !important; font-size: 2.7rem; font-weight: 800; line-height: 1.15; }
-.hero-sub { color: #e0f2fe; font-size: 1.3rem; margin-top: .5rem; }
-.badges span { display: inline-block; background: rgba(255,255,255,.2); color: #fff;
-        padding: .35rem .9rem; border-radius: 999px; margin: .9rem .45rem 0 0; font-size: .95rem; }
+/* soft colour wash at the top that works in light and dark mode */
+.stApp::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 380px;
+    background: linear-gradient(180deg, rgba(99,102,241,.16), rgba(99,102,241,0));
+    pointer-events: none; z-index: 0; }
 
-.step { background: #eef2ff; border-left: 6px solid #2563eb; border-radius: 14px;
-        padding: 1rem 1.2rem; color: #0f172a; }
-.step b { font-family: 'Poppins', sans-serif; font-size: 1.1rem; color: #1e1b4b; }
+/* ---------- animations ---------- */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes shift  { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+@keyframes bounce { 0%, 100% { height: 10px; } 50% { height: 38px; } }
+@keyframes glow   { 0%, 100% { box-shadow: 0 0 0 0 rgba(6,182,212,.5); } 50% { box-shadow: 0 0 0 10px rgba(6,182,212,0); } }
+
+.hero { background: linear-gradient(120deg, #312e81, #2563eb, #06b6d4, #2563eb, #312e81);
+        background-size: 300% 300%; animation: shift 14s ease infinite, fadeUp .7s ease both;
+        padding: 2rem 2.2rem; border-radius: 24px; margin-bottom: 1.4rem;
+        box-shadow: 0 14px 34px rgba(37, 99, 235, .28); position: relative; overflow: hidden; }
+.hero-title { color: #ffffff !important; font-size: 2.7rem; font-weight: 800; line-height: 1.15; }
+.hero-sub { color: #e0f2fe; font-size: 1.3rem; margin-top: .5rem; max-width: 760px; }
+.badges span { display: inline-block; background: rgba(255,255,255,.2); color: #fff;
+        padding: .35rem .9rem; border-radius: 999px; margin: .9rem .45rem 0 0; font-size: .95rem;
+        transition: transform .2s ease, background .2s ease; }
+.badges span:hover { transform: translateY(-3px); background: rgba(255,255,255,.32); }
+.eq { position: absolute; right: 2rem; top: 1.6rem; display: flex; gap: 6px; align-items: flex-end; height: 40px; }
+.eq i { display: block; width: 7px; height: 10px; border-radius: 4px; background: rgba(255,255,255,.85);
+        animation: bounce 1.1s ease-in-out infinite; }
+.eq i:nth-child(2) { animation-delay: .15s; } .eq i:nth-child(3) { animation-delay: .3s; }
+.eq i:nth-child(4) { animation-delay: .45s; } .eq i:nth-child(5) { animation-delay: .6s; }
+@media (max-width: 700px) { .eq { display: none; } .hero-title { font-size: 2rem; } }
+
+[data-testid="stVerticalBlockBorderWrapper"] { animation: fadeUp .6s ease both; }
+
+.step { background: rgba(99,102,241,.12); border-left: 6px solid #2563eb; border-radius: 14px;
+        padding: 1rem 1.2rem; transition: transform .2s ease, box-shadow .2s ease; }
+.step:hover { transform: translateX(6px); box-shadow: 0 8px 20px rgba(37,99,235,.15); }
+.step b { font-family: 'Poppins', sans-serif; font-size: 1.1rem; }
 
 .stButton > button, .stDownloadButton > button {
-        font-size: 1.1rem; font-weight: 700; padding: .7rem 1.4rem; border-radius: 14px; }
+        font-size: 1.1rem; font-weight: 700; padding: .7rem 1.4rem; border-radius: 14px;
+        transition: transform .15s ease, box-shadow .15s ease; }
+.stButton > button:hover, .stDownloadButton > button:hover {
+        transform: translateY(-2px); box-shadow: 0 8px 18px rgba(37,99,235,.25); }
 .stButton > button[kind="primary"], button[data-testid="stBaseButton-primary"] {
-        background: linear-gradient(120deg, #2563eb, #06b6d4); border: none; color: #fff; }
+        background: linear-gradient(120deg, #2563eb, #06b6d4); border: none; color: #fff;
+        animation: glow 2.4s ease-in-out infinite; }
 button:focus-visible, input:focus-visible, [role="radio"]:focus-visible {
         outline: 4px solid #f59e0b !important; outline-offset: 2px; }
+
+/* respect users who turn animations off */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+}
 </style>
 <div class="hero">
+  <div class="eq"><i></i><i></i><i></i><i></i><i></i></div>
   <div class="hero-title">🔊 DiagramVoice</div>
   <div class="hero-sub">Hear any textbook graph or circuit. Ask your doubts by voice, in Hindi or English.</div>
   <div class="badges"><span>Hindi + English</span><span>Voice in, voice out</span>
@@ -449,7 +481,6 @@ Question: {question}"""])
 st.divider()
 st.caption("AI can make mistakes. Please check important answers with your teacher. "
            "DiagramVoice · HackNova 2026 · Inclusive Technology")
-
 
 # import os, json, io, re, random
 # import streamlit as st
@@ -662,19 +693,36 @@ st.caption("AI can make mistakes. Please check important answers with your teach
 
 # st.markdown("""
 # <style>
-# html, body, [class*="css"] { font-size: 18px; }
-# #MainMenu, footer { visibility: hidden; }
-# .block-container { padding-top: 1.5rem; max-width: 1250px; }
-# .hero { background: linear-gradient(135deg, #1e3a8a, #2563eb); padding: 1.8rem 2rem;
-#         border-radius: 20px; margin-bottom: 1.2rem; }
-# .hero-title { color: #ffffff; font-size: 2.6rem; font-weight: 800; line-height: 1.1; }
-# .hero-sub { color: #e0e7ff; font-size: 1.25rem; margin-top: .5rem; }
-# .badges span { display: inline-block; background: rgba(255,255,255,.18); color: #fff;
-#         padding: .3rem .8rem; border-radius: 999px; margin: .8rem .4rem 0 0; font-size: .95rem; }
-# .step { background: #eef2ff; border-radius: 16px; padding: 1.1rem 1.2rem; color: #0f172a; }
-# .step b { font-size: 1.15rem; }
+# @import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Poppins:wght@600;700;800&family=Noto+Sans+Devanagari:wght@400;700&display=swap');
+
+# html, body, .stApp, .stMarkdown, p, li, label, input, textarea, button {
+#     font-family: 'Atkinson Hyperlegible', 'Noto Sans Devanagari', sans-serif;
+# }
+# html, body { font-size: 18px; }
+# h1, h2, h3, h4, .hero-title {
+#     font-family: 'Poppins', 'Noto Sans Devanagari', sans-serif !important;
+#     font-weight: 700; color: #1e1b4b;
+# }
+# .stApp { background: linear-gradient(180deg, #eef2ff 0%, #ffffff 380px); }
+# footer { visibility: hidden; }
+# .block-container { padding-top: 4.5rem; max-width: 1250px; }
+
+# .hero { background: linear-gradient(120deg, #312e81 0%, #2563eb 55%, #06b6d4 100%);
+#         padding: 2rem 2.2rem; border-radius: 24px; margin-bottom: 1.4rem;
+#         box-shadow: 0 14px 34px rgba(37, 99, 235, .28); }
+# .hero-title { color: #ffffff !important; font-size: 2.7rem; font-weight: 800; line-height: 1.15; }
+# .hero-sub { color: #e0f2fe; font-size: 1.3rem; margin-top: .5rem; }
+# .badges span { display: inline-block; background: rgba(255,255,255,.2); color: #fff;
+#         padding: .35rem .9rem; border-radius: 999px; margin: .9rem .45rem 0 0; font-size: .95rem; }
+
+# .step { background: #eef2ff; border-left: 6px solid #2563eb; border-radius: 14px;
+#         padding: 1rem 1.2rem; color: #0f172a; }
+# .step b { font-family: 'Poppins', sans-serif; font-size: 1.1rem; color: #1e1b4b; }
+
 # .stButton > button, .stDownloadButton > button {
-#         font-size: 1.1rem; font-weight: 700; padding: .7rem 1.4rem; border-radius: 12px; }
+#         font-size: 1.1rem; font-weight: 700; padding: .7rem 1.4rem; border-radius: 14px; }
+# .stButton > button[kind="primary"], button[data-testid="stBaseButton-primary"] {
+#         background: linear-gradient(120deg, #2563eb, #06b6d4); border: none; color: #fff; }
 # button:focus-visible, input:focus-visible, [role="radio"]:focus-visible {
 #         outline: 4px solid #f59e0b !important; outline-offset: 2px; }
 # </style>
@@ -689,7 +737,7 @@ st.caption("AI can make mistakes. Please check important answers with your teach
 # left, right = st.columns([1, 1.35], gap="large")
 
 # # ======================= LEFT: upload and settings =======================
-# with left:
+# with left, st.container(border=True):
 #     st.subheader("1. Choose your diagram")
 #     lang = st.radio("Language", ["English", "Hindi"], horizontal=True)
 #     vc1, vc2 = st.columns(2)
@@ -697,6 +745,14 @@ st.caption("AI can make mistakes. Please check important answers with your teach
 #     vc2.radio("Speaking speed", ["Normal", "Slow"], key="speed", horizontal=True)
 #     file = st.file_uploader("Upload a photo, image, or PDF of the diagram",
 #                             type=["png", "jpg", "jpeg", "pdf"])
+
+#     sig = (file.name, file.size) if file else None
+#     if st.session_state.get("file_sig") != sig:
+#         for k in list(st.session_state.keys()):
+#             if k in ("data", "text", "lang", "tactile", "qa_cache", "quiz", "quiz_history",
+#                      "voice_id", "voice_q") or str(k).startswith("quiz_"):
+#                 st.session_state.pop(k, None)
+#         st.session_state["file_sig"] = sig
 
 #     img = None
 #     if file:
@@ -737,7 +793,7 @@ st.caption("AI can make mistakes. Please check important answers with your teach
 #                 st.error(f"Something went wrong: {e}")
 
 # # ======================= RIGHT: results =======================
-# with right:
+# with right, st.container(border=True):
 #     if "text" not in st.session_state:
 #         st.subheader("How it works")
 #         st.markdown("""
