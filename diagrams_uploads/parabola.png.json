@@ -1,0 +1,33 @@
+{
+  "type": "graph",
+  "title": "Parabola opening to the right with vertex at (-2, 3) and a point at (0, 3)",
+  "x_axis": {
+    "label": "x",
+    "unit": null,
+    "range": [-5, 20]
+  },
+  "y_axis": {
+    "label": "y",
+    "unit": null,
+    "range": [-5, 15]
+  },
+  "curves": [
+    {
+      "shape": "parabola",
+      "slope": "varying",
+      "starts_at": "bottom-left",
+      "ends_at": "top-right",
+      "points": [
+        [-2, 3],
+        [0, 3]
+      ]
+    }
+  ],
+  "components": [],
+  "key_features": [
+    "A parabola opens to the right.",
+    "The vertex of the parabola is marked at (-2, 3) in green.",
+    "A point is marked at (0, 3) in purple."
+  ],
+  "uncertain": []
+}

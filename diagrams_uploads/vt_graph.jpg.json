@@ -1,0 +1,60 @@
+{
+  "type": "graph",
+  "title": "Average Velocity",
+  "x_axis": {
+    "label": "Time",
+    "unit": "s",
+    "range": [
+      0,
+      5
+    ]
+  },
+  "y_axis": {
+    "label": "Displacement",
+    "unit": "m",
+    "range": [
+      0,
+      100
+    ]
+  },
+  "curves": [
+    {
+      "shape": "curve",
+      "slope": "varying",
+      "starts_at": "[0, 0]",
+      "ends_at": "[5, 100]",
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          16
+        ],
+        [
+          3,
+          36
+        ],
+        [
+          4,
+          64
+        ],
+        [
+          5,
+          100
+        ]
+      ]
+    }
+  ],
+  "components": [],
+  "key_features": [
+    "The graph shows displacement versus time for an accelerating object.",
+    "The curve rises steeper over time, indicating increasing speed."
+  ],
+  "uncertain": []
+}

@@ -4,3 +4,4 @@ gTTS
 pillow
 python-dotenv
 pymupdf
+matplotlib
