@@ -7,14 +7,13 @@
 🔗 **Live demo:** `https://diagramvoice.streamlit.app/`
 🎥 **Demo video:** `PASTE_YOUTUBE_LINK_HERE`
 
-![Listen](screenshots/main.png)
+![main](screenshots/main.png)
 ![Tactile export](screenshots/tactile.png)
 ![Voice Q&A](screenshots/ask.png)
 ![braille section](screenshots/braille.png)
 ![multi-indian language](screenshots/multi_lang.png)
 <!-- Add 1-2 screenshots to a /screenshots folder: the description + audio, and voice Q&A -->
 
----
 
 ## The problem
 
