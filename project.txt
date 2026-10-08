@@ -23,3 +23,5 @@ backgroundColor = "#ffffff"
 secondaryBackgroundColor = "#eef2ff"
 textColor = "#0f172a"
 font = "sans serif"
+
+https://diagramvoice.streamlit.app/
