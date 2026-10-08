@@ -1,6 +1,6 @@
 # 🔊 DiagramVoice
 
-**Hear any textbook graph or circuit. Ask doubts by voice, in Hindi or English.**
+**Hear any textbook graph or circuit. Ask doubts by voice, in Hindi or English or indian multi-language.**
 
 > Built for HackNova 2026 · Problem Statement: **Inclusive Technology**
 
