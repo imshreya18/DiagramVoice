@@ -361,17 +361,18 @@ Plain text only: no markdown and no LaTeX or math markup. Write symbols as words
 
 st.set_page_config(page_title="DiagramVoice", page_icon="🔊", layout="wide")
 
-### FONT 
+### FONT ##
+
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Poppins:wght@600;700;800&family=Noto+Sans+Devanagari:wght@400;700&display=swap');
 
 html, body, .stApp, .stMarkdown, p, li, label, input, textarea, button {
-    font-family: 'pop', 'Noto Sans Devanagari', pop;
+    font-family: 'Atkinson Hyperlegible', 'Noto Sans Devanagari, pop;
 }
 html, body { font-size: 19px; }
 h1, h2, h3, h4, .hero-title {
-    font-family: 'Poppins', 'Noto Sans Devanagari', pop !important;
+    font-family: 'Poppins', 'Noto Sans Devanagari', pop!important;
     font-weight: 700;
 }
 footer { visibility: hidden; }
@@ -410,7 +411,7 @@ footer { visibility: hidden; }
 .step { background: rgba(99,102,241,.12); border-left: 6px solid #2563eb; border-radius: 14px;
         padding: 1rem 1.2rem; transition: transform .2s ease, box-shadow .2s ease; }
 .step:hover { transform: translateX(6px); box-shadow: 0 8px 20px rgba(37,99,235,.15); }
-.step b { font-family: 'Poppins', sans-serif; font-size: 1.1rem; }
+.step b { font-family: 'Poppins', Courier New; font-size: 1.1rem; }
 
 .stButton > button, .stDownloadButton > button {
         font-size: 1.1rem; font-weight: 700; padding: .7rem 1.4rem; border-radius: 14px;
@@ -430,7 +431,7 @@ button:focus-visible, input:focus-visible, [role="radio"]:focus-visible {
 </style>
 <div class="hero">
   <div class="eq"><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="hero-title">🔊 DiagramVoice</div>
+  <div class="hero-title"> DiagramVoice</div>
   <div class="hero-sub">Hear any textbook graph or circuit. Ask your doubts by voice, in Hindi or English.</div>
   <div class="badges"><span>Hindi + English</span><span>Voice in, voice out</span>
   <span>Never invents numbers</span><span>Tactile-ready export</span><span>Free to use</span></div>
@@ -440,6 +441,7 @@ button:focus-visible, input:focus-visible, [role="radio"]:focus-visible {
 left, right = st.columns([1, 1.35], gap="large")
 
 # ======================= LEFT: upload and settings =======================
+
 with left, st.container(border=True):
     st.subheader("1. Choose your diagram")
     lang = st.selectbox("Language", list(LANGS))
@@ -494,6 +496,7 @@ Only mention uncertain items if the uncertain list is not empty; say "approximat
                     st.session_state.pop(k, None)
             except Exception as e:
                 st.error(f"Something went wrong: {e}")
+
 
 # ======================= RIGHT: results =======================
 with right, st.container(border=True):
