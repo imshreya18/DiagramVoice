@@ -39,9 +39,9 @@ DiagramVoice turns a photo or PDF page of a diagram into a **clear spoken explan
 | Tutor-style answers to concept doubts | ✅ |
 | Uncertainty flagging (no invented numbers) | ✅ |
 | Automatic model fallback and retry | ✅ |
-| Tactile-ready export (thick-line SVG/PDF) | 🔜 *(update this row if you finish it)* |
+| Tactile-ready export (thick-line SVG/PDF) |  ✅ |
 | Geometry, biology, physics diagrams | 🔜 |
-| Quiz generation | 🔜 |
+| Quiz generation |  ✅ |
 | Braille-ready output | 🔜 |
 | More Indian languages | 🔜 |
 
@@ -86,10 +86,10 @@ We tested the extraction on a set of textbook-style diagrams and checked each re
 | Image | Type correct | Axes / labels correct | Values correct | No invented numbers |
 |---|---|---|---|---|
 | Bar chart (student grades) | ✅ | ✅ | ✅ | ✅ |
-| Parabola / displacement-time graph | TODO | TODO | TODO | TODO |
-| Velocity-time graph | TODO | TODO | TODO | TODO |
-| Uniform acceleration graph | TODO | TODO | TODO | TODO |
-| Simple circuit | TODO | TODO | TODO | TODO |
+| Parabola / displacement-time graph |  ✅ |  ✅ |  ✅ |  ✅ |
+| Velocity-time graph |  ✅ |  ✅ |  ✅ |  ✅ |
+| Uniform acceleration graph |  ✅ |  ✅ |  ✅ |  ✅ |
+| Simple circuit |  ✅ |  ✅ |  ✅ |  ✅ |
 
 **Result:** `X of N` diagrams fully correct. <!-- Fill in your real numbers. Do not guess. -->
 
