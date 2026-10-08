@@ -1,4 +1,4 @@
-import os, json, io, re, random
+import os, json, io, re, random, textwrap
 import streamlit as st
 from dotenv import load_dotenv
 from google import genai
@@ -16,13 +16,17 @@ MODELS = ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite",
           "gemini-3.5-flash", "gemini-flash-latest"]
 
 EXTRACT_PROMPT = """You are describing a diagram for a blind student.
-Return ONLY valid JSON with keys: type ("graph"/"circuit"/"other"), title,
+Return ONLY valid JSON with keys: type ("graph"/"circuit"/"geometry"/"biology"/"physics"/"other"), title,
 x_axis {label, unit, range}, y_axis {label, unit, range},
 curves [{shape, slope, starts_at, ends_at, points}],
 components [circuit parts and connections, else []],
-key_features [short plain sentences], uncertain [things not clearly readable],
+parts [{label, description, position}] for geometry, biology and physics diagrams (else []),
+relationships [how parts connect, flow, or relate, else []],
+measurements [lengths, angles, formulas or values printed on a geometry or physics diagram, else []],
+key_features [short plain sentences in English], uncertain [things not clearly readable],
 plot {kind: "bar"/"line"/"none", categories: [bar labels], x_values: [numbers], y_values: [numbers], schematic: true/false}.
 RULES: Never invent numbers. If a value is not printed, put it in "uncertain".
+Only name parts that have a printed label. For an unlabelled part say "an unlabelled part" and put it in "uncertain".
 PLOT RULES (used to redraw the diagram for tactile printing):
 - bar chart: kind "bar", categories and y_values taken from the printed values, schematic false.
 - line graph with visible numbers: kind "line", real x_values and y_values, schematic false.
@@ -30,6 +34,24 @@ PLOT RULES (used to redraw the diagram for tactile printing):
 - circuits or anything else: kind "none"."""
 
 GOOD = {"model": None}
+
+
+def clean_math(t):
+    """Turn LaTeX-style leftovers like \\(F_{n}\\) into plain speakable text."""
+    t = str(t)
+    t = re.sub(r"\\\(|\\\)|\\\[|\\\]|\$", "", t)
+    t = re.sub(r"\\(?:mathrm|text|mathbf)\{([^}]*)\}", r"\1", t)
+    for a, b in (("\\theta", "theta"), ("\\mu", "mu"), ("\\cdot", " times "),
+                 ("\\times", " times "), ("\\sin", "sin"), ("\\cos", "cos"),
+                 ("\\tan", "tan")):
+        t = t.replace(a, b)
+    t = re.sub(r"\^\{?2\}?", " squared", t)
+    t = re.sub(r"\^\{?3\}?", " cubed", t)
+    t = re.sub(r"\^\{?(-?\d+)\}?", r" to the power \1", t)
+    t = re.sub(r"_\{?([A-Za-z0-9]+)\}?", r" \1", t)
+    t = t.replace("{", "").replace("}", "").replace("\\", "")
+    t = re.sub(r"\(\(([^()]*)\)\)", r"(\1)", t)
+    return re.sub(r"[ \t]+", " ", t).strip()
 
 
 def call_llm(contents, as_json=False, temperature=None):
@@ -45,7 +67,7 @@ def call_llm(contents, as_json=False, temperature=None):
             text = client.models.generate_content(
                 model=model, contents=contents, config=cfg).text
             GOOD["model"] = model
-            return text
+            return text if as_json else clean_math(text)
         except Exception:
             continue
     raise RuntimeError("The AI service is busy. Please try again in a minute.")
@@ -64,7 +86,7 @@ def shrink(img, max_side=1024):
 
 def make_description(data, lang):
     prompt = f"""Write a spoken description of this diagram for a blind student,
-in {lang} (Devanagari script if Hindi). Use this fixed order: what kind of diagram it is,
+in {lang} (written in that language's own script). Use this fixed order: what kind of diagram it is,
 its overall shape, key labelled parts, key values, what it means.
 Only if the uncertain list is not empty, mention those items honestly.
 If it is empty, do not say anything about uncertainty.
@@ -73,11 +95,40 @@ Diagram data: {json.dumps(data)}"""
     return call_llm([prompt])
 
 
+def get_pack(data, lang):
+    """Description, key facts and uncertain items in the chosen language.
+    Built once from the English extraction, then cached per language."""
+    packs = st.session_state.setdefault("packs", {})
+    if lang in packs:
+        return packs[lang]
+    en_desc = clean_math(data.get("spoken_description") or make_description(data, "English"))
+    en_keys = [clean_math(f) for f in data.get("key_features", [])]
+    en_unsure = [clean_math(u) for u in data.get("uncertain", [])]
+    if lang == "English":
+        pack = {"description": en_desc, "key_features": en_keys, "uncertain": en_unsure}
+    else:
+        prompt = f"""Translate the following into {lang}, written in that language's own script.
+Keep the meaning exact. Keep numbers, units and the names of labelled parts accurate.
+Plain sentences only: no markdown and no LaTeX or math markup.
+Return ONLY JSON: {{"description": str, "key_features": [str], "uncertain": [str]}}
+Input: {json.dumps({"description": en_desc, "key_features": en_keys, "uncertain": en_unsure})}"""
+        out = parse_json(call_llm([prompt], as_json=True))
+        pack = {"description": clean_math(out.get("description") or en_desc),
+                "key_features": [clean_math(x) for x in (out.get("key_features") or en_keys)],
+                "uncertain": [clean_math(x) for x in (out.get("uncertain") or [])]}
+    packs[lang] = pack
+    return pack
+
+
+LANGS = {"English": "en", "Hindi": "hi", "Marathi": "mr", "Bengali": "bn", "Tamil": "ta",
+         "Telugu": "te", "Gujarati": "gu", "Kannada": "kn", "Malayalam": "ml"}
+
+
 @st.cache_data(show_spinner=False)
 def make_audio(text, lang, tld="com", slow=False):
     buf = io.BytesIO()
-    gTTS(text=text, lang="hi" if lang == "Hindi" else "en",
-         tld=tld, slow=slow).write_to_fp(buf)
+    gTTS(text=text, lang=LANGS.get(lang, "en"),
+         tld=tld if lang == "English" else "com", slow=slow).write_to_fp(buf)
     return buf.getvalue()
 
 
@@ -163,6 +214,104 @@ def make_tactile(data):
     return tuple(out)
 
 
+# ---------- Braille (English, Grade 1 / uncontracted) ----------
+_BR = dict(zip("abcdefghijklmnopqrstuvwxyz", "⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵"))
+_BRD = dict(zip("1234567890", "⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚"))
+_BRP = {".": "⠲", ",": "⠂", ";": "⠆", ":": "⠒", "!": "⠖", "?": "⠦", "'": "⠄",
+        "-": "⠤", "(": "⠐⠣", ")": "⠐⠜", "/": "⠸⠌", "=": "⠐⠶", "+": "⠐⠖"}
+_BR_WORDS = {"°": " degrees", "Ω": " ohms", "Ω": " ohms", "%": " percent", "×": " times ",
+             "÷": " divided by ", "µ": "micro", "μ": "micro", "±": " plus or minus ",
+             "≈": " approximately ", "≤": " less than or equal to ", "≥": " greater than or equal to ",
+             "<": " less than ", ">": " greater than ", "→": " to ", "−": "-", "–": "-", "—": " - ",
+             "’": "'", "‘": "'", "“": '"', "”": '"', "√": " square root of ", "π": " pi ",
+             "θ": " theta ", "α": " alpha ", "β": " beta ", "λ": " lambda ", "Δ": " delta ",
+             "²": " squared", "³": " cubed", "&": " and ", "*": " times ", "_": " "}
+
+
+def to_braille(text):
+    text = str(text).replace('"', "")
+    for a, b in _BR_WORDS.items():
+        text = text.replace(a, b)
+    text = re.sub(r"[ \t]+", " ", text)
+    out, in_num, i, n = [], False, 0, len(text)
+    while i < n:
+        ch = text[i]
+        if ch in _BRD:
+            if not in_num:
+                out.append("⠼")
+                in_num = True
+            out.append(_BRD[ch])
+            i += 1
+            continue
+        if in_num and ch in ".," and i + 1 < n and text[i + 1] in _BRD:
+            out.append(_BRP[ch])
+            i += 1
+            continue
+        was_num, in_num = in_num, False
+        low = ch.lower()
+        if low in _BR:
+            if was_num and low in "abcdefghij":
+                out.append("⠰")
+            if ch.isupper():
+                if i + 1 < n and text[i + 1].isupper() and text[i + 1].lower() in _BR:
+                    j = i
+                    while j < n and text[j].isupper() and text[j].lower() in _BR:
+                        j += 1
+                    out.append("⠠⠠" + "".join(_BR[c.lower()] for c in text[i:j]))
+                    i = j
+                    continue
+                out.append("⠠")
+            out.append(_BR[low])
+        elif ch in _BRP:
+            out.append(_BRP[ch])
+        elif ch == "\n":
+            out.append("\n")
+        elif ch.isspace():
+            out.append("⠀")
+        i += 1
+    return "".join(out)
+
+
+# _BR = dict(zip("abcdefghijklmnopqrstuvwxyz", "⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵"))
+# _BRD = dict(zip("1234567890", "⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚"))
+# _BRP = {".": "⠲", ",": "⠂", ";": "⠆", ":": "⠒", "!": "⠖", "?": "⠦", "'": "⠄",
+#         "-": "⠤", "(": "⠐⠣", ")": "⠐⠜", "/": "⠸⠌", "=": "⠐⠶", "+": "⠐⠖"}
+
+
+# def to_braille(text):
+#     out, in_num = [], False
+#     for i, ch in enumerate(text):
+#         if ch in _BRD:
+#             if not in_num:
+#                 out.append("⠼")
+#                 in_num = True
+#             out.append(_BRD[ch])
+#             continue
+#         if ch == "." and in_num and i + 1 < len(text) and text[i + 1] in _BRD:
+#             out.append("⠲")
+#             continue
+#         in_num = False
+#         low = ch.lower()
+#         if low in _BR:
+#             if ch.isupper():
+#                 out.append("⠠")
+#             out.append(_BR[low])
+#         elif ch in _BRP:
+#             out.append(_BRP[ch])
+#         elif ch == "\n":
+#             out.append("\n")
+#         elif ch.isspace():
+#             out.append("⠀")
+#     return "".join(out)
+
+
+def braille_summary(data):
+    lines = [str(data.get("title") or "")]
+    lines += [str(f) for f in data.get("key_features", [])]
+    wrapped = [textwrap.fill(l, 36) for l in lines if l.strip()]
+    return to_braille("\n\n".join(wrapped))
+
+
 # ---------- Quiz ----------
 QUIZ_FOCUS = [
     "reading exact values from the diagram",
@@ -182,7 +331,7 @@ def make_quiz(data, lang, avoid=None):
         avoid_txt = ("\nDo NOT repeat or rephrase any of these earlier questions:\n- " +
                      "\n- ".join(avoid[-20:]))
     prompt = f"""Create 5 NEW multiple-choice questions for a school student, in {lang}
-(Devanagari script if Hindi), based on this diagram data:
+(written in that language's own script), based on this diagram data:
 {json.dumps(data)}
 Emphasise these angles this time: {focus}.{avoid_txt}
 Questions about the diagram must use only values present in the data, never invent numbers.
@@ -190,7 +339,9 @@ Include at least 1 concept question. Each question has exactly 4 options.
 Put the correct answer at a random position (not always the same index).
 Return ONLY a JSON list. Each item: {{"question": str, "options": [4 strings],
 "answer_index": 0-3, "explanation": one short sentence}}.
-Plain text only, no markdown."""
+Plain text only: no markdown and no LaTeX or math markup. Write symbols as words
+(for example write "normal force" or "F n", never "F n with LaTeX")."""
+# (for example write "normal force" or "F n", never "\\(F_{n}\\)")."""
     result = parse_json(call_llm([prompt], as_json=True, temperature=1.0))
     if isinstance(result, dict):
         result = result.get("questions", [])
@@ -199,6 +350,9 @@ Plain text only, no markdown."""
         try:
             if len(q["options"]) == 4 and 0 <= int(q["answer_index"]) <= 3:
                 q["answer_index"] = int(q["answer_index"])
+                q["question"] = clean_math(q["question"])
+                q["options"] = [clean_math(o) for o in q["options"]]
+                q["explanation"] = clean_math(q.get("explanation", ""))
                 good.append(q)
         except (KeyError, TypeError, ValueError):
             continue
@@ -207,6 +361,7 @@ Plain text only, no markdown."""
 
 st.set_page_config(page_title="DiagramVoice", page_icon="🔊", layout="wide")
 
+### FONT 
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Poppins:wght@600;700;800&family=Noto+Sans+Devanagari:wght@400;700&display=swap');
@@ -287,7 +442,7 @@ left, right = st.columns([1, 1.35], gap="large")
 # ======================= LEFT: upload and settings =======================
 with left, st.container(border=True):
     st.subheader("1. Choose your diagram")
-    lang = st.radio("Language", ["English", "Hindi"], horizontal=True)
+    lang = st.selectbox("Language", list(LANGS))
     vc1, vc2 = st.columns(2)
     vc1.selectbox("Voice accent (English only)", list(ACCENTS), key="accent")
     vc2.radio("Speaking speed", ["Normal", "Slow"], key="speed", horizontal=True)
@@ -297,7 +452,7 @@ with left, st.container(border=True):
     sig = (file.name, file.size) if file else None
     if st.session_state.get("file_sig") != sig:
         for k in list(st.session_state.keys()):
-            if k in ("data", "text", "lang", "tactile", "qa_cache", "quiz", "quiz_history",
+            if k in ("data", "packs", "tactile", "qa_cache", "quiz", "quiz_history",
                      "voice_id", "voice_q") or str(k).startswith("quiz_"):
                 st.session_state.pop(k, None)
         st.session_state["file_sig"] = sig
@@ -323,14 +478,14 @@ with left, st.container(border=True):
             try:
                 with st.spinner("Reading the diagram..."):
                     extra = f"""
-Also add a key "spoken_description": a spoken description in {lang} (Devanagari if Hindi),
+Also add a key "spoken_description": a spoken description in English,
 for a blind student, under 120 words, plain sentences, no markdown, in this order:
-kind of diagram, overall shape, key labelled parts, key values, what it means.
+kind of diagram, overall shape or layout, key labelled parts and where they are, how parts connect or relate, key values, what it means.
 Only mention uncertain items if the uncertain list is not empty; say "approximately" for estimated values."""
                     data = parse_json(call_llm([shrink(img), EXTRACT_PROMPT + extra], as_json=True))
-                    text = data.get("spoken_description") or make_description(data, lang)
                     tactile = make_tactile(data)
-                st.session_state.update(data=data, text=text, lang=lang, tactile=tactile)
+                st.session_state.update(data=data, tactile=tactile)
+                st.session_state.pop("packs", None)
                 st.session_state.pop("qa_cache", None)
                 st.session_state.pop("quiz", None)
                 st.session_state.pop("quiz_history", None)
@@ -342,7 +497,7 @@ Only mention uncertain items if the uncertain list is not empty; say "approximat
 
 # ======================= RIGHT: results =======================
 with right, st.container(border=True):
-    if "text" not in st.session_state:
+    if "data" not in st.session_state:
         st.subheader("How it works")
         st.markdown("""
 <div class="step"><b>1. Upload</b><br>A photo, image, or PDF page of a graph, bar chart, or circuit.</div><br>
@@ -354,17 +509,21 @@ with right, st.container(border=True):
         view = st.radio("Section",
                         ["🔊 Listen", "✋ Tactile", "🎤 Ask", "📝 Quiz", "🔍 Under the hood"],
                         horizontal=True, key="view", label_visibility="collapsed")
-        slang = st.session_state["lang"]
+        slang = lang  # everything follows the language selected on the left
 
         if view == "🔊 Listen":
-            st.write(st.session_state["text"])
-            st.audio(speak(st.session_state["text"], slang), format="audio/mp3")
-            if st.session_state["data"].get("uncertain"):
-                st.warning("Not sure about: " +
-                           "; ".join(map(str, st.session_state["data"]["uncertain"])))
-            st.markdown("**Key facts**")
-            for f in st.session_state["data"].get("key_features", []):
-                st.write("• " + str(f))
+            try:
+                with st.spinner(f"Preparing {lang}..."):
+                    pack = get_pack(st.session_state["data"], lang)
+                st.write(pack["description"])
+                st.audio(speak(pack["description"], lang), format="audio/mp3")
+                if pack["uncertain"]:
+                    st.warning("Not sure about: " + "; ".join(pack["uncertain"]))
+                st.markdown("**Key facts**")
+                for f in pack["key_features"]:
+                    st.write("• " + f)
+            except Exception as e:
+                st.error(f"Something went wrong: {e}")
 
         elif view == "✋ Tactile":
             tac = st.session_state.get("tactile")
@@ -380,8 +539,18 @@ with right, st.container(border=True):
                 st.caption("A simplified redraw from the extracted data, ready for tactile "
                            "printing. It is not a tactile device.")
             else:
-                st.info("A tactile version is available for graphs and bar charts. "
+                st.info("A tactile drawing is available for graphs and bar charts. "
                         "It is not available for this diagram type yet.")
+
+            st.markdown("**Braille-ready text** (English, Grade 1 uncontracted)")
+            braille = braille_summary(st.session_state["data"])
+            if braille.strip():
+                st.text(braille)
+                st.download_button("⬇ Download Braille text (.txt)", braille.encode("utf-8"),
+                                   file_name="braille_summary.txt", mime="text/plain",
+                                   use_container_width=True)
+                st.caption("Unicode Braille of the title and key facts. Not yet checked by a "
+                           "certified Braille transcriber. Embosser software may need a .brf conversion.")
 
         elif view == "🎤 Ask":
             voice = st.audio_input("🎤 Ask by voice")
@@ -404,7 +573,7 @@ with right, st.container(border=True):
                     if key not in cache:
                         with st.spinner("Thinking..."):
                             ans = call_llm([f"""You are a patient school tutor helping a blind student.
-Answer in {slang}. If the language is Hindi, write in Devanagari script.
+Answer in {slang}, written in that language's own script.
 
 The student is looking at this diagram (extracted data):
 {json.dumps(st.session_state['data'])}
@@ -419,7 +588,9 @@ RULES:
    Where useful, connect it to this diagram.
 3. If the question is far outside school subjects, politely say you can only help with
    study doubts related to this topic.
-4. Speak in plain sentences only. No markdown, bullet points, or symbols.
+4. Use the same names for parts as the labels in the diagram data (for example "normal force",
+   not "vertical force"). No LaTeX or math markup.
+5. Speak in plain sentences only. No markdown, bullet points, or symbols.
    Keep it under 100 words, because this will be read aloud.
 
 Question: {question}"""])
@@ -442,12 +613,17 @@ Question: {question}"""])
                               and k not in ("quiz_history",)]:
                         st.session_state.pop(k, None)
                     st.session_state["quiz"] = quiz
+                    st.session_state["quiz_lang"] = slang
                     if not quiz:
                         st.warning("Could not make a quiz this time. Please try again.")
                 except Exception as e:
                     st.error(f"Something went wrong: {e}")
 
             quiz = st.session_state.get("quiz")
+            if quiz and st.session_state.get("quiz_lang") != slang:
+                st.info(f"This quiz was made in {st.session_state.get('quiz_lang')}. "
+                        f"Click “Create a quiz” to get questions in {slang}.")
+                quiz = None
             if quiz:
                 if st.checkbox("🔊 Read the quiz aloud"):
                     spoken = " ".join(
@@ -481,3 +657,9 @@ Question: {question}"""])
 st.divider()
 st.caption("AI can make mistakes. Please check important answers with your teacher. "
            "DiagramVoice · HackNova 2026 · Inclusive Technology")
+
+
+
+
+
+
