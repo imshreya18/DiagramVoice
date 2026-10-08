@@ -15,7 +15,7 @@
 
 ![Braille Section](screenshots/braille.png)
 
-![Multi-Indian Language Support](screenshots/multi_language.png)
+![Multi-Indian Language Support](screenshots/multi_lang.png)
 <!-- Add 1-2 screenshots to a /screenshots folder: the description + audio, and voice Q&A -->
 
 
