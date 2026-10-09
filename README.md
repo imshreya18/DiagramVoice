@@ -108,7 +108,8 @@ Each test diagram was uploaded to the live app and the result was checked by han
 | convex lens (physics) | ✅ | ⚠️ first run left out the legend (Principal Axis, Convex Lens, Ray 1, Ray 2) | ✅ | ✅ |
 | Geometry figure | ✅ | ✅ | ✅ | ✅ |
 
-**Result:** `6 of 8` diagrams fully correct. 
+**Result:** `6 of 8` diagrams fully correct.
+
 **What we fixed** : the extraction prompt now asks for every printed label, including sub-labels, and for the legend, and the spoken description has more room to name them.
 
 
