@@ -111,7 +111,6 @@ Each test diagram was uploaded to the live app and the result was checked by han
 **Result:** `6 of 8` diagrams fully correct. 
 **What we fixed** : the extraction prompt now asks for every printed label, including sub-labels, and for the legend, and the spoken description has more room to name them.
 
-Saved model outputs for several of these tests are in diagrams_uploads/ (the .json files next to the images).
 
 ## Limitations (honest notes)
 
