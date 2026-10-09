@@ -8,6 +8,7 @@
 🎥 **Demo video:** `PASTE_YOUTUBE_LINK_HERE`
 
 ![Main interface](screenshots/main.png)
+![Diagram Description](screenshots/biology.png)
 
 | Tactile export | Practice quiz |
 |---|---|
