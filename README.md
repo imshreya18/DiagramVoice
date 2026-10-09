@@ -53,7 +53,7 @@ DiagramVoice turns a photo or PDF page of a diagram into a **clear spoken explan
 | Uncertainty flagging (no invented numbers) | ✅ |
 | Voice accent and speed options | ✅ |
 | Automatic model fallback and retry | ✅ |
-| Tactile drawings for circuits, biology, and geometry | ✅ |
+| Tactile drawings for circuits, biology, and geometry | 🔜 |
 | Braille in Indian languages | 🔜 |
 | Testing with blind and low-vision students | 🔜 |
 
