@@ -59,16 +59,21 @@ DiagramVoice turns a photo or PDF page of a diagram into a **clear spoken explan
 
 ## Design decisions
 
-**Why tactile drawings exist only for graphs and bar charts.**
+**Why tactile drawings exist only for graphs and bar charts:**
+
 A graph comes with numbers, so DiagramVoice can redraw it exactly in thick lines. For circuits, biology, geometry and physics figures, the app extracts labels and positions as text, not exact coordinates. Drawing them would mean the AI inventing a layout. A blind student cannot compare a tactile drawing with the original, so a wrong drawing is worse than none, and it would break our core rule: never invent. We chose to ship fewer tactile types that are correct.
 
-**Why Braille is English Grade 1 only.**
+**Why Braille is English Grade 1 only:**
+
 Grade 1 follows a simple, documented letter-by-letter code, so we could test it ourselves. Contracted Braille and Indian-language Braille need review by a certified transcriber, so we label our output "unverified" instead of claiming support.
 
-**Why the explanation comes from extracted data.**
+**Why the explanation comes from extracted data :**
+
 Describing an image directly often gives vague or invented details. Extracting structured data first, then writing from it, keeps answers grounded and lets the app list what it is unsure about.
 
-**Next step for tactile:** a numbered label sheet (large print and Braille) for every diagram type, so a teacher or transcriber can build the drawing. After that, circuits and geometry figures that print exact measurements, each tested on at least 5 diagrams before release.
+**Next step for tactile:** 
+
+a numbered label sheet (large print and Braille) for every diagram type, so a teacher or transcriber can build the drawing. After that, circuits and geometry figures that print exact measurements, each tested on at least 5 diagrams before release.
 
 ## How it works
 
