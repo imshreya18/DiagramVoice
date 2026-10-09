@@ -324,7 +324,7 @@ Plain text only: no markdown and no LaTeX or math markup. Write symbols as words
     return good
 
 
-st.set_page_config(page_title="DiagramVoice", page_icon="🔊", layout="wide")
+st.set_page_config(page_title="DiagramVoice", page_icon="", layout="wide")
 
 st.markdown("""
 <style>
