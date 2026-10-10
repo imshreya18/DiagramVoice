@@ -5,7 +5,8 @@
 > Built solo for HackNova 2026 · Problem Statement: **Inclusive Technology**
 
 🔗 **Live demo:** https://diagramvoice.streamlit.app/
-🎥 **Demo video:** `PASTE_GOOGLEDRIVE_LINK_HERE`
+🎥 **Demo video:** https://drive.google.com/file/d/1xOOQRW7JlYq3KQH2eU8bAaZ1d7MI4M-X/view?usp=drive_link
+
 
 ![Main interface](screenshots/main.png)
 ![Diagram Description](screenshots/biology.png)
