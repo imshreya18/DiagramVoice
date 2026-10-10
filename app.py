@@ -36,6 +36,7 @@ key_features [short plain sentences in English], uncertain [things not clearly r
 plot {kind: "bar"/"line"/"none", categories: [bar labels], x_values: [numbers], y_values: [numbers], schematic: true/false}.
 RULES: Never invent numbers. If a value is not printed, put it in "uncertain".
 Every entry in all_labels must appear in parts, components, curves, groups or key_features.
+For bar charts and multi-line graphs, note the colour of each bar or line in key_features.
 Only name parts that have a printed label. For an unlabelled part say "an unlabelled part" and put it in "uncertain".
 PLOT RULES (used to redraw the diagram for tactile printing):
 - bar chart: kind "bar", categories and y_values taken from the printed values, schematic false.
@@ -324,7 +325,7 @@ Plain text only: no markdown and no LaTeX or math markup. Write symbols as words
     return good
 
 
-st.set_page_config(page_title="DiagramVoice", page_icon=" ", layout="wide")
+st.set_page_config(page_title="DiagramVoice", page_icon="🔊", layout="wide")
 
 st.markdown("""
 <style>
@@ -394,7 +395,7 @@ button:focus-visible, input:focus-visible, [role="radio"]:focus-visible {
 </style>
 <div class="hero">
   <div class="eq"><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="hero-title"> DiagramVoice</div>
+  <div class="hero-title">🔊 DiagramVoice</div>
   <div class="hero-sub">Hear any textbook graph or circuit. Ask your doubts by voice, in Hindi or English.</div>
   <div class="badges"><span>Hindi + English</span><span>Voice in, voice out</span>
   <span>Never invents numbers</span><span>Tactile-ready export</span><span>Free to use</span></div>
@@ -446,7 +447,8 @@ Also add a key "spoken_description": a spoken description in English,
 for a blind student, under 200 words, plain sentences, no markdown, in this order:
 kind of diagram, overall shape or layout, EVERY label in all_labels (say each part name, keep grouped items together
 such as "the perianth, made of the petals called the corolla and the sepals called the calyx"),
-where parts are and how they connect or relate, the legend (say what each colour, line style or symbol means),
+where parts are and how they connect or relate, the colour of each bar, line or part whenever colour is
+used to tell items apart (for example "Nepal, the green bar"), the legend (say what each colour, line style or symbol means),
 key values, what it means. Never leave out a label or a legend entry to save words.
 Only mention uncertain items if the uncertain list is not empty; say "approximately" for estimated values."""
                     data = parse_json(call_llm([shrink(img), EXTRACT_PROMPT + extra], as_json=True))
