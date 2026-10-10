@@ -395,7 +395,7 @@ button:focus-visible, input:focus-visible, [role="radio"]:focus-visible {
 </style>
 <div class="hero">
   <div class="eq"><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="hero-title">🔊 DiagramVoice</div>
+  <div class="hero-title"> DiagramVoice</div>
   <div class="hero-sub">Hear any textbook graph or circuit. Ask your doubts by voice, in Hindi or English.</div>
   <div class="badges"><span>Hindi + English</span><span>Voice in, voice out</span>
   <span>Never invents numbers</span><span>Tactile-ready export</span><span>Free to use</span></div>
